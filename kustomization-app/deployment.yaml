@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kiada
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: kiada
+        image: docker.io/luksa/kiada:0.5
+        imagePullPolicy: Always
+        env:
+        - name: QUOTE_URL
+          value: http://quote/quote
+        - name: QUIZ_URL
+          value: http://quiz
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        ports:
+        - name: http
+          containerPort: 8080
+        readinessProbe:
+          httpGet:
+            port: 8080
+            path: /healthz/ready
+            scheme: HTTP
